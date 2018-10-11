@@ -27,7 +27,7 @@ class Maze {
   //3. shows the shortest route between starting point and destination 
   drawMaze(){
     for(let i=0; i < this.row; i++){
-      this.rows = new Row(i);
+      this.rows[i] = new Row(i);
     }
 
   }
