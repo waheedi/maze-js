@@ -37,11 +37,12 @@ class Maze {
   //3. shows the shortest route between starting point and destination 
   drawMaze(){
     for(let r=0; r < this.row; r++){
-      this.rows[r] = new Row(r);
+      this.rows[r] = new Row(r,this);
+
     }
     this.pickHeadTail(); //now pick head and tail, also insert the head and tail to the route array
     this.solved = this.drawRoute(this.head); //work to detect success path, this can be done in different ways
-    this.routeStyle();
+//          this.routeStyle();
     if (!this.solved){
       if(this.cbs){
         console.log("Drawing a maze now");
@@ -52,6 +53,7 @@ class Maze {
         alert("This maze can't be solved, refresh the page or set can_be_solved to true when you create a maze instance");
       }
     }
+
     console.log(this.solved);
   }
 
@@ -60,6 +62,7 @@ class Maze {
     this.head = this.cells.find(cell => cell.row === this.head.row && cell.col === this.head.col);
     this.head.style = "head";
     this.head.html("head");
+    
     this.tail =  this.rows[this.row-1].cells[rand(this.col)];
     this.tail = this.cells.find(cell => cell.row === this.tail.row && cell.col === this.tail.col);
     this.tail.style = "tail";
@@ -67,28 +70,27 @@ class Maze {
   }
 
   drawRoute(cell){
-    console.log(steps++);
 
+    console.log(steps++);
     //console.log("cell in call", cell);
 
     if(cell.style === "tail") return true; 
 
     if (this.visited.indexOf(cell) !== -1) return false;
     this.visited.push(cell);
+    var cell_;
 
-
-    if (cell.style !== "bottom" && this.cells.find(cell_=> cell_.row === (cell.row+1) && cell_.col === (cell.col) ) && this.cells.find(cell_=> cell_.row === (cell.row+1) 
-      && cell_.col === cell.col)  && this.drawRoute(this.cells.find(cell_=> cell_.row === (cell.row+1) && cell_.col === cell.col ) ) ) { 
+    if (cell.style !== "bottom" &&  this.cells.find(cell_=> cell_.row === (cell.row+1) && cell_.col === (cell.col))  
+      && this.drawRoute(this.cells.find(cell_=> cell_.row === (cell.row+1) && cell_.col === cell.col ) ) ) { 
       this.route.push(cell);
       //console.log("cell is not bottom:", cell);
       //console.log("and we checked on ", this.cells.find(cell_=> cell_.row === (cell.row+1) && cell_.col === (cell.col)) );
       return true;
     }
 
-    if(this.head.col >= this.tail.col){ //this check here helps in finding a shorter path to tail
+    if(this.head.col >= this.tail.col || cell.col >= this.tail.col ){ //this check here helps in finding a shorter path to tail
       if (this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1) && cell_.style !== "right" ) && cell.style !== "left"  ){ 
-        if (this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1) ) && this.drawRoute(this.cells.find(cell_=> cell_.row === cell.row 
-          && cell_.col === (cell.col-1) ) ) ) { 
+        if (this.drawRoute(this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1) ) ) ) { 
           this.route.push(cell); 
         //  console.log("cell is not left:", cell);
         //  console.log("and we checked on ", this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1)) );
@@ -96,8 +98,7 @@ class Maze {
         }
       }
       if (this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1) && cell_.style !== "left" ) && cell.style !== "right"){ 
-        if (this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1) ) && this.drawRoute(this.cells.find(cell_=> cell_.row === cell.row 
-          && cell_.col === (cell.col+1) ) ) ) {
+        if (this.drawRoute(this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1) ) ) ) {
           this.route.push(cell);
           //console.log("cell is not right:", cell);
           //console.log("and we checked on ", this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1)) );
@@ -106,8 +107,7 @@ class Maze {
       }
      }else{
       if (this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1) && cell_.style !== "left" ) && cell.style !== "right"){ 
-        if (this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1) ) && this.drawRoute(this.cells.find(cell_=> cell_.row === cell.row 
-          && cell_.col === (cell.col+1) ) ) ) {
+        if (this.drawRoute(this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1) ) ) ) {
           this.route.push(cell);
           //console.log("cell is not right:", cell);
           //console.log("and we checked on ", this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1)) );
@@ -115,8 +115,7 @@ class Maze {
         }
       }
       if (this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1) && cell_.style !== "right" ) && cell.style !== "left"  ){ 
-        if (this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1) ) && this.drawRoute(this.cells.find(cell_=> cell_.row === cell.row 
-          && cell_.col === (cell.col-1) ) ) ) { 
+        if (this.drawRoute(this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1) ) ) ) { 
           this.route.push(cell); 
           //console.log("cell is not left:", cell);
           //console.log("and we checked on ", this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1)) );
@@ -124,22 +123,20 @@ class Maze {
         }
       }
      }
-
-      if (cell.style !== "bottom" && this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === (cell.col) && cell_.style !== "bottom" ) && this.cells.find(cell_=> cell_.row === (cell.row-1) 
-        && cell_.col === cell.col)  && this.drawRoute(this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === cell.col ) ) ) { 
-        this.route.push(cell);
-        //console.log("cell is not bottom:", cell);
-        //console.log("and we checked on ", this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === (cell.col)) );
-        return true;
-      }
-
+    if (cell.style !== "bottom" && this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === (cell.col) && cell_.style !== "bottom") 
+     && this.drawRoute(this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === cell.col ) )) { 
+      this.route.push(cell);
+      //console.log("cell is not bottom:", cell);
+      //console.log("and we checked on ", this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === (cell.col)) );
+      return true;
+    }
     return false;
   }
 
   routeStyle(){
     for(let i=0; i<this.route.length; i++)
     {
-      this.route[i].html("route");
+      this.route[i].html("route "+i.toString());
     }
   }
   html(name) {
@@ -156,11 +153,13 @@ class Maze {
     }
     return table;
   }
+
 };
 
 class Row {
-  constructor(row=0) {
+  constructor(row=0, maze) {
     this.row = row;
+    this.maze = maze;
     this.cells = [];
     this.route = [];
     this.html();
@@ -173,17 +172,17 @@ class Row {
     if(!row){
       row = document.createElement("tr");
       row.id = "row_"+this.row.toString();
-      maze.html().appendChild(row);
+      this.maze.html().appendChild(row);
     }
     return row;
   }
 
   createCells(){
     //we want our head/start cell to be in 0 row, but a random cell
-    for(let c=0; c < maze.col; c++){
+    for(let c=0; c < this.maze.col; c++){
       let cell = new Cell(this.row, c);
       this.cells.push({col:cell.col,row:cell.row});
-      maze.cells.push(cell);
+      this.maze.cells.push(cell);
       this.html().appendChild(cell.html());
     }
 
@@ -220,6 +219,5 @@ class Cell {
   }
 };
 
-var maze = new Maze(64,64, true);// you can use redraw maze is not solvable by using new Maze(6,6,true);
+let maze = new Maze(65,65);// you can use redraw maze if not solvable by using new Maze(6,6,true);
 maze.drawMaze();
-
