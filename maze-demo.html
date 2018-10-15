@@ -92,7 +92,7 @@
 
           }
           this.pickHeadTail(); //now pick head and tail, also insert the head and tail to the route array
-          this.solved = this.drawRoute(this.head); //work to detect success path, this can be done in different ways
+           //work to detect success path, this can be done in different ways
 //          this.routeStyle();
           if (!this.solved){
             if(this.cbs){
@@ -118,24 +118,31 @@
           this.tail = this.cells.find(cell => cell.row === this.tail.row && cell.col === this.tail.col);
           this.tail.style = "tail";
           this.tail.html("tail");
+
+          this.solved = this.drawRoute(this.head);
         }
 
         drawRoute(cell){
 
           console.log(steps++);
-          //console.log("cell in call", cell);
-
-          if(cell.style === "tail") return true; 
-
-          if (this.visited.indexOf(cell) !== -1) return false;
+          console.log("cell in call", cell);
+          if(cell.style === "tail") {
+            console.log("found tail");
+            return true; 
+          }
+          if (this.visited.indexOf(cell) !== -1)
+          {
+            console.log("visited this:", cell);
+            return false;
+          } 
           this.visited.push(cell);
           var cell_;
 
           if (cell.style !== "bottom" &&  this.cells.find(cell_=> cell_.row === (cell.row+1) && cell_.col === (cell.col))  
             && this.drawRoute(this.cells.find(cell_=> cell_.row === (cell.row+1) && cell_.col === cell.col ) ) ) { 
             this.route.push(cell);
-            //console.log("cell is not bottom:", cell);
-            //console.log("and we checked on ", this.cells.find(cell_=> cell_.row === (cell.row+1) && cell_.col === (cell.col)) );
+            console.log("cell is not bottom:", cell);
+            console.log("and we checked on ", this.cells.find(cell_=> cell_.row === (cell.row+1) && cell_.col === (cell.col)) );
             return true;
           }
 
@@ -143,16 +150,16 @@
             if (this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1) && cell_.style !== "right" ) && cell.style !== "left"  ){ 
               if (this.drawRoute(this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1) ) ) ) { 
                 this.route.push(cell); 
-              //  console.log("cell is not left:", cell);
-              //  console.log("and we checked on ", this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1)) );
+                console.log("cell is not left:", cell);
+                console.log("and we checked on ", this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1)) );
                 return true;
               }
             }
             if (this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1) && cell_.style !== "left" ) && cell.style !== "right"){ 
               if (this.drawRoute(this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1) ) ) ) {
                 this.route.push(cell);
-                //console.log("cell is not right:", cell);
-                //console.log("and we checked on ", this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1)) );
+                console.log("cell is not right:", cell);
+                console.log("and we checked on ", this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1)) );
                 return true;
               }
             }
@@ -160,27 +167,28 @@
             if (this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1) && cell_.style !== "left" ) && cell.style !== "right"){ 
               if (this.drawRoute(this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1) ) ) ) {
                 this.route.push(cell);
-                //console.log("cell is not right:", cell);
-                //console.log("and we checked on ", this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1)) );
+                console.log("cell is not right:", cell);
+                console.log("and we checked on ", this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1)) );
                 return true;
               }
             }
             if (this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1) && cell_.style !== "right" ) && cell.style !== "left"  ){ 
               if (this.drawRoute(this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1) ) ) ) { 
                 this.route.push(cell); 
-                //console.log("cell is not left:", cell);
-                //console.log("and we checked on ", this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1)) );
+                console.log("cell is not left:", cell);
+                console.log("and we checked on ", this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1)) );
                 return true;
               }
             }
            }
-          if (cell.style !== "bottom" && this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === (cell.col) && cell_.style !== "bottom") 
+          if (this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === (cell.col) && cell_.style !== "bottom") 
            && this.drawRoute(this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === cell.col ) )) { 
             this.route.push(cell);
-            //console.log("cell is not bottom:", cell);
-            //console.log("and we checked on ", this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === (cell.col)) );
+            console.log("cell is not bottom:", cell);
+            console.log("and we checked on ", this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === (cell.col)) );
             return true;
           }
+          console.log("returning big false");
           return false;
         }
 
@@ -270,7 +278,7 @@
         }
       };
 
-      let maze = new Maze(65,65, true);// you can use redraw maze is not solvable by using new Maze(6,6,true);
+      let maze = new Maze(33,33, true);// you can use redraw maze is not solvable by using new Maze(6,6,true);
       maze.drawMaze();
 
     </script>

@@ -123,7 +123,7 @@ class Maze {
         }
       }
      }
-    if (cell.style !== "bottom" && this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === (cell.col) && cell_.style !== "bottom") 
+    if (this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === (cell.col) && cell_.style !== "bottom") 
      && this.drawRoute(this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === cell.col ) )) { 
       this.route.push(cell);
       //console.log("cell is not bottom:", cell);
