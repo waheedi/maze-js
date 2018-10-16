@@ -11,7 +11,6 @@ a simple two dimensional maze game. javascript/node.js
 
 var styles=["bottom","right","left"]; //you can change the level difficulty by changing the styles 
 var colors=["red","green","orange", "gray", "purple", "blue", "yellow"]; 
-var steps = 0;
 //global functions
 var rand  = function(t){
   return Math.floor((Math.random() * t));
@@ -23,6 +22,7 @@ class Maze {
     this.row = row;
     this.col = col;
     this.rows = [];
+    this.steps = 0;
     this.route = [];
     this.visited = [];
     this.size = this.row*this.col;
@@ -41,7 +41,7 @@ class Maze {
 
     }
     this.pickHeadTail(); //now pick head and tail, also insert the head and tail to the route array
-    this.solved = this.drawRoute(this.head); //work to detect success path, this can be done in different ways
+     //work to detect success path, this can be done in different ways
 //          this.routeStyle();
     if (!this.solved){
       if(this.cbs){
@@ -67,67 +67,94 @@ class Maze {
     this.tail = this.cells.find(cell => cell.row === this.tail.row && cell.col === this.tail.col);
     this.tail.style = "tail";
     this.tail.html("tail");
+    //not a good idea to try to catch range error of memory stack size exceeded, perforamnce degradation 
+    //try {
+    this.solved = this.drawRoute(this.head); //just to make sure head and tail were set when we call this guy
+    //}catch(e){
+     // console.log("I will generated another one now");
+    // }
   }
 
   drawRoute(cell){
 
-    console.log(steps++);
-    //console.log("cell in call", cell);
-
-    if(cell.style === "tail") return true; 
-
-    if (this.visited.indexOf(cell) !== -1) return false;
-    this.visited.push(cell);
-    var cell_;
-
-    if (cell.style !== "bottom" &&  this.cells.find(cell_=> cell_.row === (cell.row+1) && cell_.col === (cell.col))  
-      && this.drawRoute(this.cells.find(cell_=> cell_.row === (cell.row+1) && cell_.col === cell.col ) ) ) { 
-      this.route.push(cell);
-      //console.log("cell is not bottom:", cell);
-      //console.log("and we checked on ", this.cells.find(cell_=> cell_.row === (cell.row+1) && cell_.col === (cell.col)) );
-      return true;
+    console.log(this.steps++);
+//      console.log("cell in call", cell);
+    if(this.steps > this.row*this.col){ //this to minimize an overstack error possiblity 
+      console.log("exceeded our intentions");
+      return false;
     }
 
-    if(this.head.col >= this.tail.col || cell.col >= this.tail.col ){ //this check here helps in finding a shorter path to tail
-      if (this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1) && cell_.style !== "right" ) && cell.style !== "left"  ){ 
-        if (this.drawRoute(this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1) ) ) ) { 
+    if(cell.style === "tail") {
+      return true; 
+    }
+
+    let visited = this.visited.find(cell_ => cell_ === cell);
+
+    if ((visited))
+    {
+      return false;
+    } 
+
+    this.visited.push(cell);
+
+    let bottom_cell = this.cells.find(cell_=> cell_.row === (cell.row+1) && cell_.col === (cell.col)); //indicates an available bottom route
+    let visited_bottom_cell = this.visited.find(cell_ => cell_ === bottom_cell); //indicates a visited bottom route
+
+    let left_cell = this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1));
+    let visited_left_cell = this.visited.find(cell_ => cell_ === left_cell);
+    let right_cell = this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1));
+    let visited_right_cell = this.visited.find(cell_ => cell_ === right_cell);
+    let top_cell = this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === (cell.col));
+    let visited_top_cell = this.visited.find(cell_ => cell_ === top_cell);
+
+    
+    if (cell.style !== "bottom" &&  bottom_cell && bottom_cell.col === cell.col && visited_bottom_cell === undefined && this.drawRoute(bottom_cell)) { 
+      this.route.push(cell);
+//        console.log("cell is not bottom:", cell);
+//       console.log("and we checked on ", bottom_cell);
+      return true;
+    }    
+
+    if(cell.col >= this.tail.col ){ //this check here helps in finding a shorter path to tail. Smarter vs Faster, your call :)
+      if (left_cell && left_cell.style !== "right" && cell.style !== "left" ){ 
+        if (visited_left_cell === undefined && this.drawRoute(left_cell) ) { 
           this.route.push(cell); 
-        //  console.log("cell is not left:", cell);
-        //  console.log("and we checked on ", this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1)) );
+//          console.log("cell is not left:", cell);
+//          console.log("and we checked on ", left_cell);
           return true;
         }
       }
-      if (this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1) && cell_.style !== "left" ) && cell.style !== "right"){ 
-        if (this.drawRoute(this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1) ) ) ) {
+      if ( right_cell && right_cell.style !== "left" && cell.style !== "right"){ 
+        if (visited_right_cell === undefined && this.drawRoute(right_cell)) {
           this.route.push(cell);
-          //console.log("cell is not right:", cell);
-          //console.log("and we checked on ", this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1)) );
+//          console.log("cell is not right:", cell);
+//          console.log("and we checked on ", right_cell);
           return true;
         }
       }
      }else{
-      if (this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1) && cell_.style !== "left" ) && cell.style !== "right"){ 
-        if (this.drawRoute(this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1) ) ) ) {
+      if (right_cell && right_cell.style !== "left" && cell.style !== "right"){ 
+        if (visited_right_cell === undefined && this.drawRoute(right_cell)) {
           this.route.push(cell);
-          //console.log("cell is not right:", cell);
-          //console.log("and we checked on ", this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col+1)) );
+//          console.log("cell is not right:", cell);
+//          console.log("and we checked on ", right_cell);
           return true;
         }
       }
-      if (this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1) && cell_.style !== "right" ) && cell.style !== "left"  ){ 
-        if (this.drawRoute(this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1) ) ) ) { 
+      if (left_cell && left_cell.style !== "right" && cell.style !== "left"){ 
+        if (visited_left_cell === undefined && this.drawRoute( left_cell)) { 
           this.route.push(cell); 
-          //console.log("cell is not left:", cell);
-          //console.log("and we checked on ", this.cells.find(cell_=> cell_.row === cell.row && cell_.col === (cell.col-1)) );
+//          console.log("cell is not left:", cell);
+//          console.log("and we checked on ", left_cell);
           return true;
         }
       }
      }
-    if (this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === (cell.col) && cell_.style !== "bottom") 
-     && this.drawRoute(this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === cell.col ) )) { 
+
+    if (top_cell && top_cell.style !== "bottom" && visited_top_cell === undefined && this.drawRoute(top_cell)) { 
       this.route.push(cell);
-      //console.log("cell is not bottom:", cell);
-      //console.log("and we checked on ", this.cells.find(cell_=> cell_.row === (cell.row-1) && cell_.col === (cell.col)) );
+//      console.log("cell is not bottom:", cell);
+//      console.log("and we checked on ", top_cell );
       return true;
     }
     return false;
@@ -219,5 +246,5 @@ class Cell {
   }
 };
 
-let maze = new Maze(65,65);// you can use redraw maze if not solvable by using new Maze(6,6,true);
+let maze = new Maze(36,36, true);// you can use redraw maze is not solvable by using new Maze(6,6,true);
 maze.drawMaze();
