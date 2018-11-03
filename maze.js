@@ -40,7 +40,7 @@ class Maze {
       this.rows[r] = new Row(r,this);
 
     }
-    this.pickHeadTail(); //now pick head and tail, also insert the head and tail to the route array
+    this.pickHeadTail(); //now pick head and tail
      //work to detect success path, this can be done in different ways
 //          this.routeStyle();
     if (!this.solved){
