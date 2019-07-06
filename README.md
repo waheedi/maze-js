@@ -9,4 +9,6 @@ var maze = Maze.new(6,6);
 maze.drawMaze();
 ```
 
+![alt text](maze.png)
+![alt text](maze1.png)
 
