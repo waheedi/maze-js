@@ -32,10 +32,9 @@ class Maze {
     this.head = head; //the start point to the maze
     this.tail = tail; //the exit point from a maze
     this.html();
-  //  this.drawMaze();
   }
   //3. shows the shortest route between starting point and destination 
-  drawMaze(){
+  draw(){
     for(let r=0; r < this.row; r++){
       this.rows[r] = new Row(r,this);
 
@@ -48,7 +47,7 @@ class Maze {
         console.log("Drawing a maze now");
         maze = new Maze(this.row,this.col,true);
         document.getElementById("maze").innerHTML = "";
-        maze.drawMaze();
+        maze.draw();
       }else{
         alert("This maze can't be solved, refresh the page or set can_be_solved to true when you create a maze instance");
       }
@@ -247,4 +246,4 @@ class Cell {
 };
 
 let maze = new Maze(36,36, true);// you can use redraw maze is not solvable by using new Maze(6,6,true);
-maze.drawMaze();
+maze.draw();
